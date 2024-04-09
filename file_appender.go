@@ -281,6 +281,7 @@ func (fa *fileAppender) getLogChunks() (*collections.SortedSlice, int64) {
 	archiveName, _ := filepath.Abs(fa.fileName)
 	nameRegExp := archiveName + "\\.\\d+"
 	if fa.rotate == rsDaily {
+		nameRegExp = filepath.Base(nameRegExp)
 		nameRegExp = archiveName + "\\.\\d{4}-\\d{2}-\\d{2}\\.\\d+"
 	}
 
