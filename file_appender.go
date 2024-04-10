@@ -281,8 +281,7 @@ func (fa *fileAppender) getLogChunks() (*collections.SortedSlice, int64) {
 	archiveName, _ := filepath.Abs(fa.fileName)
 	nameRegExp := archiveName + "\\.\\d+"
 	if fa.rotate == rsDaily {
-		onlyFileName := filepath.Base(archiveName)
-		nameRegExp = onlyFileName + "\\.\\d{4}-\\d{2}-\\d{2}\\.\\d+"
+		nameRegExp = archiveName + "\\.\\d{4}-\\d{2}-\\d{2}\\.\\d+"
 	}
 
 	dir := filepath.Dir(archiveName)
@@ -291,7 +290,8 @@ func (fa *fileAppender) getLogChunks() (*collections.SortedSlice, int64) {
 	chunks, _ := collections.NewSortedSlice(5)
 	var size int64 = 0
 	for _, fInfo := range fileInfos {
-		if m, _ := regexp.MatchString(nameRegExp, fInfo.Name()); fInfo.IsDir() || !m {
+		absPathName := dir + "/" + fInfo.Name()
+		if m, _ := regexp.MatchString(nameRegExp, absPathName); fInfo.IsDir() || !m {
 			continue
 		}
 
@@ -304,7 +304,7 @@ func (fa *fileAppender) getLogChunks() (*collections.SortedSlice, int64) {
 		if err != nil {
 			continue
 		}
-		chunks.Add(&chunkInfo{fId, fInfo.Name(), fInfo.Size()})
+		chunks.Add(&chunkInfo{fId, absPathName, fInfo.Size()})
 		size += fInfo.Size()
 	}
 	return chunks, size
